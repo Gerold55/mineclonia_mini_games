@@ -14,6 +14,7 @@ dofile(mp .. "/battle_core.lua")
 dofile(mp .. "/tumble_core.lua")
 dofile(mp .. "/visuals.lua")
 dofile(mp .. "/snowball.lua")
+dofile(mp .. "/commands.lua")
 
 minetest.log("action", "[battle_lobby] Loaded modular Battle/Tumble lobby.")
 
