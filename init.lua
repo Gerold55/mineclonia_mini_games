@@ -8,7 +8,7 @@ local mp = battle_lobby.modpath
 dofile(mp .. "/util.lua")
 dofile(mp .. "/config.lua")
 dofile(mp .. "/state.lua")
-dofile(mp .. "/chests.lua")
+local chests = dofile(minetest.get_modpath("battle_lobby").."/chests.lua")
 dofile(mp .. "/ui.lua")
 dofile(mp .. "/battle_core.lua")
 dofile(mp .. "/tumble_core.lua")
@@ -17,6 +17,42 @@ dofile(mp .. "/snowball.lua")
 dofile(mp .. "/commands.lua")
 
 minetest.log("action", "[battle_lobby] Loaded modular Battle/Tumble lobby.")
+
+-- Prepare chests for an arena (detect + initial loot)
+minetest.register_chatcommand("battle_test_init_chests", {
+    privs = {server = true},
+    params = "<arena_id>",
+    description = "Prepare chests for an arena (detect + fill with initial loot).",
+    func = function(name, param)
+        local aid = param ~= "" and param or nil
+        if not aid then
+            return false, "Usage: /battle_test_init_chests <arena_id>"
+        end
+
+        if not config or not config.arenas or not config.arenas[aid] then
+            return false, "Arena '"..aid.."' not found. Use /battle_add_arena and /battle_set_center first."
+        end
+
+        local arena = config.arenas[aid]
+        chests.prepare_battle_chests(aid, arena)
+
+        return true, "Prepared chests for arena '"..aid.."'."
+    end,
+})
+
+-- Force one chest refill tick
+minetest.register_chatcommand("battle_test_refill_tick", {
+    privs = {server = true},
+    params = "",
+    description = "Force one chest refill tick (for testing).",
+    func = function(name, param)
+        battle = battle or {}
+        battle.state = "running"
+
+        chests.update_battle_chest_refills()
+        return true, "Ran chest refill tick."
+    end,
+})
 
 minetest.register_alias("default:pine_wood", "mcl_trees:wood_spruce")
 -- Stairs
